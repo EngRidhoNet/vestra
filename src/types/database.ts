@@ -1,0 +1,73 @@
+// Replace this file with generated types:
+//   npx supabase gen types typescript --project-id <id> --schema public > src/types/database.ts
+// For now we export a minimal manual shape so app code can typecheck without
+// the generator having been run yet.
+
+export type ItemCategory =
+  | "top"
+  | "bottom"
+  | "outerwear"
+  | "dress"
+  | "shoes"
+  | "accessory"
+  | "bag"
+  | "other";
+
+export type Profile = {
+  id: string;
+  email: string | null;
+  full_name: string | null;
+  avatar_url: string | null;
+  onboarded_at: string | null;
+  created_at: string;
+  updated_at: string;
+};
+
+export type UserPreferences = {
+  user_id: string;
+  style_tags: string[];
+  favorite_colors: string[];
+  disliked_colors: string[];
+  sizing: Record<string, string | number>;
+  climate: string | null;
+  timezone: string | null;
+  updated_at: string;
+};
+
+export type WardrobeItem = {
+  id: string;
+  user_id: string;
+  name: string;
+  category: ItemCategory;
+  subcategory: string | null;
+  color: string | null;
+  brand: string | null;
+  material: string | null;
+  season: string[];
+  tags: string[];
+  image_path: string | null;
+  archived: boolean;
+  created_at: string;
+  updated_at: string;
+};
+
+export type Outfit = {
+  id: string;
+  user_id: string;
+  name: string | null;
+  occasion: string | null;
+  created_at: string;
+};
+
+export type Recommendation = {
+  id: string;
+  user_id: string;
+  outfit_id: string | null;
+  occasion: string | null;
+  weather: Record<string, unknown> | null;
+  reason: string | null;
+  score: number | null;
+  feedback: "like" | "dislike" | null;
+  scheduled_for: string | null;
+  created_at: string;
+};
