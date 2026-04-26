@@ -1,4 +1,6 @@
-import { Shirt } from "lucide-react";
+import { Shirt, Plus } from "lucide-react";
+import Link from "next/link";
+import { Button } from "@/components/ui/button";
 import { Container } from "@/components/shared/container";
 import { PageHeader } from "@/components/shared/page-header";
 import { EmptyState } from "@/components/shared/empty-state";
@@ -30,6 +32,14 @@ export default async function WardrobePage() {
       <PageHeader
         title="Wardrobe"
         description="Every piece you own — photo, category, and color."
+        actions={
+          <Button asChild>
+            <Link href="/wardrobe/add">
+              <Plus className="w-4 h-4 mr-2" />
+              Add Item
+            </Link>
+          </Button>
+        }
       />
 
       {withUrls.length === 0 ? (

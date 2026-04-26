@@ -36,3 +36,5 @@ export const ACCEPTED_IMAGE_TYPES = [
   "image/webp",
   "image/heic",
 ] as const;
+
+export const BRIGHTNESS_VALUES = ["light", "medium", "dark"] as const;
