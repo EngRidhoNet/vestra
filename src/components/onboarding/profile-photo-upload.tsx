@@ -8,7 +8,7 @@ import { ACCEPTED_IMAGE_TYPES, MAX_UPLOAD_BYTES } from "@/lib/constants";
 
 type ProfilePhotoUploadProps = {
   value: string | null;
-  onUpload: (file: File) => Promise<void>;
+  onUpload: (base64Data: string, mimeType: string) => Promise<void>;
   onRemove: () => void;
   uploading?: boolean;
   label: string;
@@ -27,8 +27,8 @@ function compressionProfile(shape: ProfilePhotoUploadProps["shape"]) {
   return { maxDimension: 900, quality: 0.62 };
 }
 
-async function compressImage(
-  file: File,
+async function compressImageBase64(
+  base64Str: string,
   {
     maxDimension,
     quality,
@@ -36,46 +36,30 @@ async function compressImage(
     maxDimension: number;
     quality: number;
   },
-) {
-  if (file.type === "image/heic") {
-    return file;
-  }
+): Promise<string> {
+  // If it's HEIC or we can't compress, we might just return original
+  // But we want to ensure it's a JPEG for the server, so we draw it
+  return new Promise((resolve) => {
+    const img = new window.Image();
+    img.onload = () => {
+      const largestSide = Math.max(img.width, img.height);
+      const scale = Math.min(1, maxDimension / largestSide);
+      const width = Math.round(img.width * scale);
+      const height = Math.round(img.height * scale);
+      
+      const canvas = document.createElement("canvas");
+      canvas.width = width;
+      canvas.height = height;
 
-  try {
-    const image = await createImageBitmap(file, {
-      imageOrientation: "from-image",
-    });
-    const largestSide = Math.max(image.width, image.height);
-    const scale = Math.min(1, maxDimension / largestSide);
-    const width = Math.round(image.width * scale);
-    const height = Math.round(image.height * scale);
-    const canvas = document.createElement("canvas");
-    canvas.width = width;
-    canvas.height = height;
+      const context = canvas.getContext("2d");
+      if (!context) return resolve(base64Str);
 
-    const context = canvas.getContext("2d");
-    if (!context) return file;
-
-    context.drawImage(image, 0, 0, width, height);
-    image.close();
-
-    const blob = await new Promise<Blob | null>((resolve) => {
-      canvas.toBlob(resolve, COMPRESSED_IMAGE_TYPE, quality);
-    });
-
-    if (!blob) return file;
-
-    return new File(
-      [blob],
-      file.name.replace(/\.[^.]+$/, "") + ".jpg",
-      {
-        type: COMPRESSED_IMAGE_TYPE,
-        lastModified: Date.now(),
-      },
-    );
-  } catch {
-    return file;
-  }
+      context.drawImage(img, 0, 0, width, height);
+      resolve(canvas.toDataURL(COMPRESSED_IMAGE_TYPE, quality));
+    };
+    img.onerror = () => resolve(base64Str);
+    img.src = base64Str;
+  });
 }
 
 function uploadErrorMessage(err: unknown) {
@@ -104,7 +88,7 @@ export function ProfilePhotoUpload({
   const displayUrl = preview ?? value;
 
   const handleFile = useCallback(
-    async (file: File) => {
+    async (file: File, base64Data: string) => {
       setError(null);
 
       if (
@@ -116,30 +100,12 @@ export function ProfilePhotoUpload({
         return;
       }
 
-      // Read file from disk IMMEDIATELY to prevent stale references.
-      // Page re-renders (Fast Refresh, ECONNRESET) can invalidate the
-      // original File handle, so we create an in-memory copy first.
-      let memFile: File;
       try {
-        const buffer = await file.arrayBuffer();
-        memFile = new File([buffer], file.name, {
-          type: file.type,
-          lastModified: file.lastModified,
-        });
-      } catch {
-        setError("Could not read this image. Please try selecting it again.");
-        return;
-      }
+        // 1. Compress the base64 string
+        const compressedBase64 = await compressImageBase64(base64Data, compressionProfile(shape));
 
-      try {
-        const uploadFile = await compressImage(memFile, compressionProfile(shape));
-
-        if (uploadFile.size > MAX_UPLOAD_BYTES) {
-          setError("Image must be under 8MB after compression");
-          return;
-        }
-
-        await onUpload(uploadFile);
+        // 3. Pass Base64 data directly to the server action wrapper
+        await onUpload(compressedBase64, COMPRESSED_IMAGE_TYPE);
       } catch (err) {
         setPreview(null);
         setError(uploadErrorMessage(err));
@@ -239,7 +205,21 @@ export function ProfilePhotoUpload({
         className="hidden"
         onChange={(e) => {
           const file = e.target.files?.[0];
-          if (file) handleFile(file);
+          if (!file) return;
+          
+          // Read synchronously in the event handler to absolutely guarantee 
+          // the browser hasn't dropped the file descriptor yet.
+          const reader = new FileReader();
+          reader.onload = () => {
+            handleFile(file, reader.result as string);
+          };
+          reader.onerror = () => {
+            const errName = reader.error?.name || "UnknownError";
+            const errMsg = reader.error?.message || "No error message";
+            setError(`Browser blocked file access (${errName}: ${errMsg}). File may be locked or restricted by OS.`);
+            if (inputRef.current) inputRef.current.value = "";
+          };
+          reader.readAsDataURL(file);
         }}
       />
     </div>

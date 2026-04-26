@@ -68,68 +68,26 @@ function extensionFor(file: File) {
   return "jpg";
 }
 
-async function uploadPhoto(file: File, type: PhotoType): Promise<UploadedPhoto> {
-  if (
-    !ACCEPTED_IMAGE_TYPES.includes(
-      file.type as (typeof ACCEPTED_IMAGE_TYPES)[number],
-    )
-  ) {
-    throw new Error("Please upload JPG, PNG, WebP, or HEIC");
-  }
+import { uploadProfilePhotoAction } from "@/actions/upload";
 
-  if (file.size > MAX_UPLOAD_BYTES) {
-    throw new Error("Image must be under 8MB");
-  }
+async function uploadPhoto(
+  base64Data: string,
+  mimeType: string,
+  type: PhotoType,
+): Promise<UploadedPhoto> {
+  console.log(`[upload] Sending base64 to server action...`);
+  const result = await uploadProfilePhotoAction(base64Data, mimeType, type);
 
-  // Read file content IMMEDIATELY — File references can go stale
-  // if we wait for network calls (like getUser) first.
-  const arrayBuffer = await file.arrayBuffer();
-  const contentType = file.type;
-
-  console.log(`[upload] File read: type=${type}, size=${arrayBuffer.byteLength}, mime=${contentType}`);
-
-  const supabase = createClient();
-
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  if (!user) {
-    throw new Error("Not signed in. Please log in and try again.");
-  }
-
-  console.log(`[upload] User authenticated: ${user.id}`);
-
-  const ext = extensionFor(file);
-  const path = `${user.id}/${type}/${crypto.randomUUID()}.${ext}`;
-
-  console.log(`[upload] Uploading ${arrayBuffer.byteLength} bytes to path: ${path}`);
-
-  const { error: uploadError } = await supabase.storage
-    .from(STORAGE_BUCKETS.profilePhotos)
-    .upload(path, arrayBuffer, {
-      contentType,
-      upsert: false,
-    });
-
-  if (uploadError) {
-    console.error(`[upload] Upload failed:`, uploadError);
-    throw new Error(uploadError.message);
-  }
-
-  console.log(`[upload] Upload succeeded, getting signed URL...`);
-
-  const { data: signed, error: signedError } = await supabase.storage
-    .from(STORAGE_BUCKETS.profilePhotos)
-    .createSignedUrl(path, 60 * 60);
-
-  if (signedError) {
-    console.warn(`[upload] Signed URL failed:`, signedError);
-    return { path, signedUrl: null };
+  if (result.error) {
+    console.error("[upload] Server action error:", result.error);
+    throw new Error(result.error);
   }
 
   console.log(`[upload] Done!`);
-  return { path, signedUrl: signed?.signedUrl ?? null };
+  return {
+    path: result.path!,
+    signedUrl: result.signedUrl ?? null,
+  };
 }
 
 export function ProfileForm({
@@ -177,13 +135,13 @@ export function ProfileForm({
   }, [bodyShape, gender, skinTone]);
 
   const handlePhotoUpload = useCallback(
-    async (file: File, type: PhotoType) => {
+    async (base64Data: string, mimeType: string, type: PhotoType) => {
       setError(null);
       setMessage(null);
       setUploading(type);
 
       try {
-        const uploaded = await uploadPhoto(file, type);
+        const uploaded = await uploadPhoto(base64Data, mimeType, type);
         const displayUrl = uploaded.signedUrl;
 
         if (type === "avatar") {
@@ -252,18 +210,19 @@ export function ProfileForm({
 
   return (
     <div className="grid gap-4 lg:grid-cols-[0.9fr_1.4fr]">
-      <Card className="glass-panel border-0">
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <User className="size-4" />
-            Your profile
-          </CardTitle>
-        </CardHeader>
+      <div className="relative self-start lg:sticky lg:top-24 lg:z-10">
+        <Card className="glass-panel border-0">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <User className="size-4" />
+              Your profile
+            </CardTitle>
+          </CardHeader>
         <CardContent className="space-y-5">
           <div className="flex flex-col items-center text-center">
             <ProfilePhotoUpload
               value={avatarUrl}
-              onUpload={(file) => handlePhotoUpload(file, "avatar")}
+              onUpload={(base64, mime) => handlePhotoUpload(base64, mime, "avatar")}
               onRemove={() => setAvatarUrl(null)}
               uploading={uploading === "avatar"}
               label="Profile Photo"
@@ -324,7 +283,8 @@ export function ProfileForm({
             <p className="text-destructive text-center text-sm">{error}</p>
           ) : null}
         </CardContent>
-      </Card>
+        </Card>
+      </div>
 
       <div className="space-y-4">
         <Card className="glass-panel border-0">
@@ -422,7 +382,7 @@ export function ProfileForm({
             <div className="grid grid-cols-2 gap-4">
               <ProfilePhotoUpload
                 value={facePhoto.url}
-                onUpload={(file) => handlePhotoUpload(file, "face")}
+                onUpload={(base64, mime) => handlePhotoUpload(base64, mime, "face")}
                 onRemove={() => setFacePhoto({ path: null, url: null })}
                 uploading={uploading === "face"}
                 label="Face Photo"
@@ -431,7 +391,7 @@ export function ProfileForm({
               />
               <ProfilePhotoUpload
                 value={bodyPhoto.url}
-                onUpload={(file) => handlePhotoUpload(file, "body")}
+                onUpload={(base64, mime) => handlePhotoUpload(base64, mime, "body")}
                 onRemove={() => setBodyPhoto({ path: null, url: null })}
                 uploading={uploading === "body"}
                 label="Full Body"

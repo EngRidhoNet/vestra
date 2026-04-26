@@ -57,49 +57,20 @@ function extensionFor(file: File) {
   return "jpg";
 }
 
+import { uploadProfilePhotoAction } from "@/actions/upload";
+
 async function uploadPhoto(
-  file: File,
+  base64Data: string,
+  mimeType: string,
   type: "avatar" | "face" | "body",
 ): Promise<string> {
-  if (
-    !ACCEPTED_IMAGE_TYPES.includes(
-      file.type as (typeof ACCEPTED_IMAGE_TYPES)[number],
-    )
-  ) {
-    throw new Error("Please upload JPG, PNG, WebP, or HEIC");
+  const result = await uploadProfilePhotoAction(base64Data, mimeType, type);
+
+  if (result.error) {
+    throw new Error(result.error);
   }
 
-  if (file.size > MAX_UPLOAD_BYTES) {
-    throw new Error("Image must be under 8MB");
-  }
-
-  // Read file content IMMEDIATELY — File references can go stale
-  // if we wait for network calls (like getUser) first.
-  const arrayBuffer = await file.arrayBuffer();
-  const contentType = file.type;
-
-  const supabase = createClient();
-
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  if (!user) {
-    throw new Error("Not signed in. Please log in and try again.");
-  }
-
-  const ext = extensionFor(file);
-  const path = `${user.id}/${type}/${crypto.randomUUID()}.${ext}`;
-
-  const { error: uploadError } = await supabase.storage
-    .from(STORAGE_BUCKETS.profilePhotos)
-    .upload(path, arrayBuffer, { contentType, upsert: false });
-
-  if (uploadError) {
-    throw new Error(uploadError.message);
-  }
-
-  return path;
+  return result.path!;
 }
 
 export function OnboardingForm({ defaultName }: { defaultName: string }) {
@@ -134,15 +105,15 @@ export function OnboardingForm({ defaultName }: { defaultName: string }) {
 
   const handlePhotoUpload = useCallback(
     async (
-      file: File,
+      base64Data: string,
+      mimeType: string,
       type: "avatar" | "face" | "body",
       setter: React.Dispatch<React.SetStateAction<PhotoState>>,
     ) => {
-      const preview = URL.createObjectURL(file);
-      setter({ file, preview, path: null });
+      setter({ file: null, preview: base64Data, path: null });
       setUploading(type);
       try {
-        const path = await uploadPhoto(file, type);
+        const path = await uploadPhoto(base64Data, mimeType, type);
         setter((prev) => ({ ...prev, path }));
       } catch {
         setter({ file: null, preview: null, path: null });
@@ -241,8 +212,8 @@ export function OnboardingForm({ defaultName }: { defaultName: string }) {
               gender={gender}
               onGenderChange={setGender}
               avatar={avatar}
-              onAvatarUpload={(file) =>
-                handlePhotoUpload(file, "avatar", setAvatar)
+              onAvatarUpload={(b64, mime) =>
+                handlePhotoUpload(b64, mime, "avatar", setAvatar)
               }
               onAvatarRemove={() =>
                 setAvatar({ file: null, preview: null, path: null })
@@ -264,11 +235,11 @@ export function OnboardingForm({ defaultName }: { defaultName: string }) {
             <StepPhotos
               facePhoto={facePhoto}
               bodyPhoto={bodyPhoto}
-              onFaceUpload={(file) =>
-                handlePhotoUpload(file, "face", setFacePhoto)
+              onFaceUpload={(b64, mime) =>
+                handlePhotoUpload(b64, mime, "face", setFacePhoto)
               }
-              onBodyUpload={(file) =>
-                handlePhotoUpload(file, "body", setBodyPhoto)
+              onBodyUpload={(b64, mime) =>
+                handlePhotoUpload(b64, mime, "body", setBodyPhoto)
               }
               onFaceRemove={() =>
                 setFacePhoto({ file: null, preview: null, path: null })

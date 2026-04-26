@@ -18,7 +18,7 @@ type ShellProps = {
 
 export function AppShell({ user, children }: ShellProps) {
   return (
-    <div className="bg-app relative flex min-h-screen overflow-x-hidden">
+    <div className="bg-app relative flex min-h-screen">
       {/* Desktop sidebar */}
       <aside className="glass-subtle sticky top-0 hidden h-screen w-64 shrink-0 flex-col gap-6 border-r p-4 md:flex">
         <Link
