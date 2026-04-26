@@ -8,6 +8,7 @@ const APP_PATHS = [
   "/recommendations",
   "/settings",
   "/onboarding",
+  "/profile",
 ];
 
 export async function updateSession(request: NextRequest) {
