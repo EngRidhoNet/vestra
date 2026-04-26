@@ -12,15 +12,18 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { createClient } from "@/lib/supabase/client";
+import { cn } from "@/lib/utils";
 
 export function UserMenu({
   name,
   email,
   avatarUrl,
+  compact = false,
 }: {
   name: string | null;
   email: string | null;
   avatarUrl: string | null;
+  compact?: boolean;
 }) {
   const router = useRouter();
 
@@ -33,12 +36,17 @@ export function UserMenu({
 
   return (
     <DropdownMenu>
-      <DropdownMenuTrigger className="hover:bg-accent/60 flex w-full items-center gap-3 rounded-xl p-2 text-left transition">
-        <Avatar className="h-8 w-8">
+      <DropdownMenuTrigger
+        className={cn(
+          "hover:bg-accent/60 flex w-full items-center gap-3 rounded-xl p-2 text-left transition",
+          compact && "justify-end rounded-full p-1",
+        )}
+      >
+        <Avatar className="h-8 w-8 shrink-0">
           {avatarUrl ? <AvatarImage src={avatarUrl} alt={name ?? "User"} /> : null}
           <AvatarFallback>{initials}</AvatarFallback>
         </Avatar>
-        <div className="min-w-0 flex-1">
+        <div className={compact ? "sr-only" : "min-w-0 flex-1"}>
           <p className="truncate text-sm font-medium">{name ?? "Account"}</p>
           <p className="text-muted-foreground truncate text-xs">{email ?? ""}</p>
         </div>
@@ -46,9 +54,9 @@ export function UserMenu({
       <DropdownMenuContent align="end" className="w-56">
         <DropdownMenuLabel>My account</DropdownMenuLabel>
         <DropdownMenuSeparator />
-        <DropdownMenuItem onClick={() => router.push("/settings")}>
+        <DropdownMenuItem onClick={() => router.push("/profile")}>
           <Settings className="mr-2 h-4 w-4" />
-          Settings
+          Profile
         </DropdownMenuItem>
         <DropdownMenuSeparator />
         <DropdownMenuItem

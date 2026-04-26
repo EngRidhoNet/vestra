@@ -16,7 +16,7 @@ export default async function DashboardPage() {
     .eq("archived", false);
 
   return (
-    <Container className="py-8 sm:py-12">
+    <Container className="pt-5 sm:py-12">
       <PageHeader
         title="Today"
         description="Your weather-aware outfit pick for today."
@@ -55,7 +55,7 @@ export default async function DashboardPage() {
           <WeatherSummaryCard weather={null} />
           <Link
             href="/recommendations"
-            className="glass-subtle flex items-center justify-between rounded-2xl p-4 transition hover:bg-card/70"
+            className="glass-subtle flex min-h-16 items-center justify-between rounded-2xl p-4 transition duration-300 ease-out active:scale-[0.99] hover:bg-card/70"
           >
             <div className="flex items-center gap-3">
               <Sparkles className="h-4 w-4" />

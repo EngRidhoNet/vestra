@@ -11,7 +11,7 @@ export default async function SettingsPage() {
   } = await supabase.auth.getUser();
 
   return (
-    <Container size="md" className="py-8 sm:py-12">
+    <Container size="md" className="pt-5 sm:py-12">
       <PageHeader
         title="Settings"
         description="Manage your profile, preferences, and account."
@@ -25,7 +25,7 @@ export default async function SettingsPage() {
         </TabsList>
 
         <TabsContent value="profile" className="mt-6">
-          <Card className="shadow-soft">
+          <Card className="glass-panel border-0">
             <CardHeader>
               <CardTitle>Profile</CardTitle>
             </CardHeader>
@@ -39,7 +39,7 @@ export default async function SettingsPage() {
         </TabsContent>
 
         <TabsContent value="preferences" className="mt-6">
-          <Card className="shadow-soft">
+          <Card className="glass-panel border-0">
             <CardHeader>
               <CardTitle>Style preferences</CardTitle>
             </CardHeader>
@@ -50,7 +50,7 @@ export default async function SettingsPage() {
         </TabsContent>
 
         <TabsContent value="account" className="mt-6">
-          <Card className="shadow-soft">
+          <Card className="glass-panel border-0">
             <CardHeader>
               <CardTitle>Account</CardTitle>
             </CardHeader>

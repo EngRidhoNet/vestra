@@ -26,7 +26,7 @@ export default async function WardrobePage() {
   );
 
   return (
-    <Container className="py-8 sm:py-12">
+    <Container className="pt-5 sm:py-12">
       <PageHeader
         title="Wardrobe"
         description="Every piece you own — photo, category, and color."
@@ -39,7 +39,7 @@ export default async function WardrobePage() {
           description="Upload your first piece — a top, bottom, or a favorite jacket."
         />
       ) : (
-        <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
+        <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4 lg:grid-cols-4">
           {withUrls.map(({ item, imageUrl }) => (
             <WardrobeItemCard key={item.id} item={item} imageUrl={imageUrl} />
           ))}

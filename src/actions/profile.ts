@@ -1,6 +1,6 @@
 "use server";
 
-import { redirect } from "next/navigation";
+import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { createClient } from "@/lib/supabase/server";
 import { STYLE_TAGS } from "@/lib/constants";
@@ -25,40 +25,42 @@ const bodyShapeValues = [
   "petite",
 ] as const;
 
-const schema = z.object({
-  fullName: z.string().min(1).max(80),
+const profileSchema = z.object({
+  fullName: z.string().trim().min(1, "Name is required").max(80),
   gender: z.enum(genderValues),
   skinTone: z.enum(skinToneValues),
   bodyShape: z.enum(bodyShapeValues),
   styleTags: z.array(z.enum(STYLE_TAGS)).default([]),
-  climate: z.string().max(40).optional().default(""),
+  climate: z.string().trim().max(40).optional().default(""),
   avatarUrl: z.string().nullable().optional(),
   facePhotoPath: z.string().nullable().optional(),
   bodyPhotoPath: z.string().nullable().optional(),
 });
 
-export type OnboardingState = {
+export type UpdateProfilePayload = z.input<typeof profileSchema>;
+
+export type UpdateProfileState = {
+  ok?: boolean;
   error?: string;
 };
 
-export type OnboardingPayload = z.input<typeof schema>;
-
-export async function completeOnboarding(
-  payload: OnboardingPayload,
-): Promise<OnboardingState> {
-  const parsed = schema.safeParse(payload);
+export async function updateProfile(
+  payload: UpdateProfilePayload,
+): Promise<UpdateProfileState> {
+  const parsed = profileSchema.safeParse(payload);
 
   if (!parsed.success) {
-    return { error: "Please fill in all required fields." };
+    return { error: "Please complete the required profile fields." };
   }
 
   const supabase = await createClient();
   const {
     data: { user },
   } = await supabase.auth.getUser();
+
   if (!user) return { error: "Not signed in." };
 
-  const { error: profileErr } = await supabase
+  const { error: profileError } = await supabase
     .from("profiles")
     .update({
       full_name: parsed.data.fullName,
@@ -68,21 +70,27 @@ export async function completeOnboarding(
       avatar_url: parsed.data.avatarUrl ?? null,
       face_photo_path: parsed.data.facePhotoPath ?? null,
       body_photo_path: parsed.data.bodyPhotoPath ?? null,
-      onboarded_at: new Date().toISOString(),
     })
     .eq("id", user.id);
 
-  if (profileErr) return { error: profileErr.message };
+  if (profileError) return { error: profileError.message };
 
-  const { error: prefsErr } = await supabase
+  const { error: preferencesError } = await supabase
     .from("user_preferences")
-    .update({
-      style_tags: parsed.data.styleTags,
-      climate: parsed.data.climate || null,
-    })
-    .eq("user_id", user.id);
+    .upsert(
+      {
+        user_id: user.id,
+        style_tags: parsed.data.styleTags,
+        climate: parsed.data.climate || null,
+      },
+      { onConflict: "user_id" },
+    );
 
-  if (prefsErr) return { error: prefsErr.message };
+  if (preferencesError) return { error: preferencesError.message };
 
-  redirect("/dashboard");
+  revalidatePath("/profile");
+  revalidatePath("/settings");
+  revalidatePath("/dashboard");
+
+  return { ok: true };
 }
