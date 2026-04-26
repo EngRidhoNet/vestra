@@ -14,7 +14,7 @@ export default async function RecommendationsPage() {
     .limit(20);
 
   return (
-    <Container className="py-8 sm:py-12">
+    <Container className="pt-5 sm:py-12">
       <PageHeader
         title="Recommendations"
         description="Outfits curated for you based on weather, occasion, and your taste."
