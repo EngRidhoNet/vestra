@@ -338,7 +338,7 @@ function StepBasicProfile({
   gender: GenderType | null;
   onGenderChange: (v: GenderType) => void;
   avatar: PhotoState;
-  onAvatarUpload: (file: File) => Promise<void>;
+  onAvatarUpload: (base64Data: string, mimeType: string) => Promise<void>;
   onAvatarRemove: () => void;
   uploading: boolean;
 }) {
@@ -471,8 +471,8 @@ function StepPhotos({
 }: {
   facePhoto: PhotoState;
   bodyPhoto: PhotoState;
-  onFaceUpload: (file: File) => Promise<void>;
-  onBodyUpload: (file: File) => Promise<void>;
+  onFaceUpload: (base64Data: string, mimeType: string) => Promise<void>;
+  onBodyUpload: (base64Data: string, mimeType: string) => Promise<void>;
   onFaceRemove: () => void;
   onBodyRemove: () => void;
   uploadingFace: boolean;
