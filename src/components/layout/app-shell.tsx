@@ -1,10 +1,13 @@
 "use client";
 
+import { useEffect } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { Shirt } from "lucide-react";
 import { SidebarNav } from "@/components/layout/sidebar-nav";
 import { UserMenu } from "@/components/layout/user-menu";
 import { MobileTabNav } from "@/components/layout/mobile-tab-nav";
+import { APP_NAV } from "@/components/layout/nav-items";
 import { APP_NAME } from "@/lib/constants";
 
 type ShellProps = {
@@ -17,6 +20,14 @@ type ShellProps = {
 };
 
 export function AppShell({ user, children }: ShellProps) {
+  const router = useRouter();
+
+  useEffect(() => {
+    APP_NAV.forEach(({ href }) => {
+      router.prefetch(href);
+    });
+  }, [router]);
+
   return (
     <div className="bg-app relative flex min-h-screen">
       {/* Desktop sidebar */}
