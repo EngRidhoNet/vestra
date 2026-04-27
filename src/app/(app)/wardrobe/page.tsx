@@ -27,7 +27,7 @@ export default async function WardrobePage() {
       .createSignedUrls(imagePaths, 60 * 60);
 
     (signedUrls ?? []).forEach((entry) => {
-      if (entry.signedUrl) {
+      if (entry.path && entry.signedUrl) {
         signedUrlByPath.set(entry.path, entry.signedUrl);
       }
     });
