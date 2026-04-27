@@ -22,6 +22,7 @@ export function MobileTabNav() {
             <Link
               key={href}
               href={href}
+              prefetch
               aria-current={active ? "page" : undefined}
               className={cn(
                 "group flex min-h-14 flex-col items-center justify-center gap-1 rounded-[1.25rem] px-1 text-[0.68rem] font-medium transition-all duration-300 ease-out",
