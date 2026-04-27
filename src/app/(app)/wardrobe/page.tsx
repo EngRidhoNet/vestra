@@ -15,15 +15,28 @@ export default async function WardrobePage() {
     .eq("archived", false)
     .order("created_at", { ascending: false });
 
-  const withUrls = await Promise.all(
-    (items ?? []).map(async (item) => {
-      if (!item.image_path) return { item, imageUrl: null };
-      const { data } = await supabase.storage
-        .from(STORAGE_BUCKETS.wardrobe)
-        .createSignedUrl(item.image_path, 60 * 60);
-      return { item, imageUrl: data?.signedUrl ?? null };
-    }),
-  );
+  const imagePaths = (items ?? [])
+    .map((item) => item.image_path)
+    .filter((path): path is string => Boolean(path));
+
+  const signedUrlByPath = new Map<string, string>();
+
+  if (imagePaths.length > 0) {
+    const { data: signedUrls } = await supabase.storage
+      .from(STORAGE_BUCKETS.wardrobe)
+      .createSignedUrls(imagePaths, 60 * 60);
+
+    (signedUrls ?? []).forEach((entry) => {
+      if (entry.signedUrl) {
+        signedUrlByPath.set(entry.path, entry.signedUrl);
+      }
+    });
+  }
+
+  const withUrls = (items ?? []).map((item) => ({
+    item,
+    imageUrl: item.image_path ? (signedUrlByPath.get(item.image_path) ?? null) : null,
+  }));
 
   return (
     <Container className="pt-5 sm:py-12">
