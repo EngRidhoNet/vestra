@@ -6,7 +6,7 @@ import { ArrowLeft } from "lucide-react";
 
 export default function AddWardrobeItemPage() {
   return (
-    <Container className="py-8 sm:py-12">
+    <Container className="pt-5 sm:py-12">
       <div className="mb-6">
         <Button
           variant="ghost"

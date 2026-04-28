@@ -23,14 +23,16 @@ import {
 } from "@/components/onboarding/selectable-card";
 import { StepIndicator } from "@/components/onboarding/step-indicator";
 import {
+  ACCEPTED_IMAGE_TYPES,
+  MAX_UPLOAD_BYTES,
+} from "@/constants/general.constant";
+import {
   GENDERS,
   SKIN_TONES,
   BODY_SHAPES,
   STYLE_TAGS,
-  ACCEPTED_IMAGE_TYPES,
-  MAX_UPLOAD_BYTES,
-  STORAGE_BUCKETS,
-} from "@/constants/general.constant";
+} from "@/constants/wardrobe-related.constant";
+
 import {
   completeOnboarding,
   type OnboardingPayload,
@@ -380,7 +382,7 @@ function StepBasicProfile({
       <div className="space-y-3">
         <Label>Gender</Label>
         <div className="grid grid-cols-3 gap-2">
-          {GENDERS.map((g) => (
+          {GENDERS.map((g: any) => (
             <SelectableCard
               key={g.value}
               value={g.value}
@@ -424,7 +426,7 @@ function StepAppearance({
       <div className="space-y-3">
         <Label>Skin Tone</Label>
         <div className="flex flex-wrap justify-center gap-1">
-          {SKIN_TONES.map((t) => (
+          {SKIN_TONES.map((t: any) => (
             <SkinToneSwatch
               key={t.value}
               value={t.value}
@@ -440,7 +442,7 @@ function StepAppearance({
       <div className="space-y-3">
         <Label>Body Type</Label>
         <div className="grid grid-cols-2 gap-2">
-          {BODY_SHAPES.map((b) => (
+          {BODY_SHAPES.map((b: any) => (
             <SelectableCard
               key={b.value}
               value={b.value}
@@ -548,10 +550,13 @@ function StepReview({
   onClimateChange: (v: string) => void;
   onEditStep: (step: number) => void;
 }) {
-  const genderLabel = GENDERS.find((g) => g.value === gender)?.label ?? "—";
-  const skinLabel = SKIN_TONES.find((t) => t.value === skinTone)?.label ?? "—";
+  const genderLabel =
+    GENDERS.find((g: any) => g.value === gender)?.label ?? "—";
+  const skinLabel =
+    SKIN_TONES.find((t: any) => t.value === skinTone)?.label ?? "—";
+
   const bodyLabel =
-    BODY_SHAPES.find((b) => b.value === bodyShape)?.label ?? "—";
+    BODY_SHAPES.find((b: any) => b.value === bodyShape)?.label ?? "—";
 
   return (
     <div className="space-y-6">
@@ -644,7 +649,7 @@ function StepReview({
           Pick any that resonate. You can change this later.
         </p>
         <div className="flex flex-wrap gap-2">
-          {STYLE_TAGS.map((tag) => (
+          {STYLE_TAGS.map((tag: string) => (
             <button
               key={tag}
               type="button"

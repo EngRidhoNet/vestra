@@ -15,6 +15,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { notFound } from "next/navigation";
 import { format } from "date-fns";
+import { Container } from "@/components/shared/container";
 
 export default async function WardrobeItemDetailPage({
   params,
@@ -31,14 +32,13 @@ export default async function WardrobeItemDetailPage({
       : null;
 
     return (
-      <div className="container max-w-5xl py-8 animate-in fade-in duration-500">
+      <Container
+        className="pt-5 sm:py-12 animate-in fade-in duration-500"
+        size="lg"
+      >
         {/* Navigation Actions */}
         <div className="mb-8 flex items-center justify-between">
-          <Button
-            variant="ghost"
-            asChild
-            className="-ml-2 hover:bg-transparent"
-          >
+          <Button variant="ghost" asChild className="hover:bg-transparent">
             <Link href="/wardrobe" className="flex items-center gap-2 group">
               <ArrowLeft className="h-4 w-4 transition-transform group-hover:-translate-x-1" />
               <span className="font-medium">Back to Wardrobe</span>
@@ -173,7 +173,7 @@ export default async function WardrobeItemDetailPage({
             </div>
           </div>
         </div>
-      </div>
+      </Container>
     );
   } catch (error) {
     console.error("Error fetching wardrobe item:", error);
