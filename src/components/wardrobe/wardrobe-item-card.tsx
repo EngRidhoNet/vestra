@@ -18,11 +18,11 @@ export function WardrobeItemCard({
     <Link
       href={`/wardrobe/${item.id}`}
       className={cn(
-        "group bg-card shadow-soft flex flex-col overflow-hidden rounded-2xl border transition-all hover:ring-2 hover:ring-primary/20",
+        "glass-panel group flex flex-col overflow-hidden rounded-2xl border-0 transition duration-300 ease-out active:scale-[0.99] sm:hover:-translate-y-0.5",
         className,
       )}
     >
-      <div className="bg-muted relative aspect-square overflow-hidden">
+      <div className="bg-muted/70 relative aspect-square overflow-hidden">
         {imageUrl ? (
           <Image
             src={imageUrl}

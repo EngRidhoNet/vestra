@@ -18,11 +18,36 @@ export type Brightness =
   | "dark" // gelap (hitam, navy, burgundy tua)
   | "medium"; // menengah (warna netral/sedang)
 
+export type GenderType = "male" | "female" | "prefer_not_to_say";
+
+export type SkinTone =
+  | "very_light"
+  | "light"
+  | "medium"
+  | "tan"
+  | "brown"
+  | "dark"
+  | "very_dark";
+
+export type BodyShape =
+  | "slim"
+  | "athletic"
+  | "average"
+  | "curvy"
+  | "plus_size"
+  | "broad"
+  | "petite";
+
 export type Profile = {
   id: string;
   email: string | null;
   full_name: string | null;
   avatar_url: string | null;
+  gender: GenderType | null;
+  skin_tone: SkinTone | null;
+  body_shape: BodyShape | null;
+  face_photo_path: string | null;
+  body_photo_path: string | null;
   onboarded_at: string | null;
   created_at: string;
   updated_at: string;

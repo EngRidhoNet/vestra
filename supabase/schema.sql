@@ -15,19 +15,40 @@ begin
       'top', 'bottom', 'outerwear', 'dress', 'shoes', 'accessory', 'bag', 'other'
     );
   end if;
+
+  if not exists (select 1 from pg_type where typname = 'gender_type') then
+    create type gender_type as enum ('male', 'female', 'prefer_not_to_say');
+  end if;
+
+  if not exists (select 1 from pg_type where typname = 'skin_tone') then
+    create type skin_tone as enum (
+      'very_light', 'light', 'medium', 'tan', 'brown', 'dark', 'very_dark'
+    );
+  end if;
+
+  if not exists (select 1 from pg_type where typname = 'body_shape') then
+    create type body_shape as enum (
+      'slim', 'athletic', 'average', 'curvy', 'plus_size', 'broad', 'petite'
+    );
+  end if;
 end$$;
 
 -- Tables ---------------------------------------------------------------------
 
 -- profiles: 1:1 with auth.users. App-level user data.
 create table if not exists public.profiles (
-  id           uuid primary key references auth.users(id) on delete cascade,
-  email        text,
-  full_name    text,
-  avatar_url   text,
-  onboarded_at timestamptz,
-  created_at   timestamptz not null default now(),
-  updated_at   timestamptz not null default now()
+  id              uuid primary key references auth.users(id) on delete cascade,
+  email           text,
+  full_name       text,
+  avatar_url      text,
+  gender          gender_type,
+  skin_tone       skin_tone,
+  body_shape      body_shape,
+  face_photo_path text,
+  body_photo_path text,
+  onboarded_at    timestamptz,
+  created_at      timestamptz not null default now(),
+  updated_at      timestamptz not null default now()
 );
 
 -- user_preferences: style/context used by the recommender.
@@ -235,5 +256,45 @@ create policy "wardrobe delete own folder" on storage.objects
   for delete to authenticated
   using (
     bucket_id = 'wardrobe'
+    and (storage.foldername(name))[1] = auth.uid()::text
+  );
+
+-- Profile photos bucket: face photos, body photos, profile avatars.
+insert into storage.buckets (id, name, public)
+values ('profile-photos', 'profile-photos', false)
+on conflict (id) do nothing;
+
+-- Users upload/read/update/delete ONLY inside their own folder:
+--   profile-photos/<user_id>/<type>/<uuid>.<ext>
+
+drop policy if exists "profile photos upload own folder" on storage.objects;
+create policy "profile photos upload own folder" on storage.objects
+  for insert to authenticated
+  with check (
+    bucket_id = 'profile-photos'
+    and (storage.foldername(name))[1] = auth.uid()::text
+  );
+
+drop policy if exists "profile photos read own folder" on storage.objects;
+create policy "profile photos read own folder" on storage.objects
+  for select to authenticated
+  using (
+    bucket_id = 'profile-photos'
+    and (storage.foldername(name))[1] = auth.uid()::text
+  );
+
+drop policy if exists "profile photos update own folder" on storage.objects;
+create policy "profile photos update own folder" on storage.objects
+  for update to authenticated
+  using (
+    bucket_id = 'profile-photos'
+    and (storage.foldername(name))[1] = auth.uid()::text
+  );
+
+drop policy if exists "profile photos delete own folder" on storage.objects;
+create policy "profile photos delete own folder" on storage.objects
+  for delete to authenticated
+  using (
+    bucket_id = 'profile-photos'
     and (storage.foldername(name))[1] = auth.uid()::text
   );
