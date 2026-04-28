@@ -6,11 +6,8 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
-import { STYLE_TAGS } from "@/lib/constants";
-import {
-  completeOnboarding,
-  type OnboardingState,
-} from "@/actions/onboarding";
+import { STYLE_TAGS } from "@/constants/general.constant";
+import { completeOnboarding, type OnboardingState } from "@/actions/onboarding";
 
 const initial: OnboardingState = {};
 

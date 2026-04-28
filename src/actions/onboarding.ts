@@ -3,7 +3,7 @@
 import { redirect } from "next/navigation";
 import { z } from "zod";
 import { createClient } from "@/lib/supabase/server";
-import { STYLE_TAGS } from "@/lib/constants";
+import { STYLE_TAGS } from "@/constants/wardrobe-related.constant";
 
 const schema = z.object({
   fullName: z.string().min(1).max(80),

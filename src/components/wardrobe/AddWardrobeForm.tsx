@@ -26,17 +26,17 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { resizeImage, fileToBase64 } from "@/lib/image";
-import {
-  extractWardrobeMetadata,
-  ExtractedWardrobeData,
-} from "@/actions/extract-wardrobe";
+import { extractWardrobeMetadata } from "@/actions/extract-wardrobe-item";
+import { saveWardrobeItem } from "@/actions/save-wardrobe-item";
+import type { ExtractedWardrobeData } from "@/schemas/wardrobe.schema";
 import { toast } from "sonner";
-import { BRIGHTNESS_VALUES } from "@/lib/constants";
+import { BRIGHTNESS_VALUES } from "@/constants/wardrobe-related.constant";
 
 export function AddWardrobeForm() {
   const [file, setFile] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
   const [extractedData, setExtractedData] =
     useState<ExtractedWardrobeData | null>(null);
 
@@ -75,13 +75,22 @@ export function AddWardrobeForm() {
     }
   };
 
-  const handleSave = async (e: React.FormEvent) => {
+  const handleSave = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (!file || !extractedData) return;
 
-    // In Phase 4, we will call the saveWardrobeItem Server Action here!
-    toast.success("Ready for Phase 4! (Database Save)");
-    console.log("Ready to save:", { file, extractedData });
+    setIsSaving(true);
+    try {
+      const formData = new FormData(e.currentTarget);
+      formData.append("image", file); // Attach the actual image file
+
+      await saveWardrobeItem(formData);
+      // The action redirects on success, so no toast needed here unless desired.
+    } catch (err) {
+      console.error(err);
+      toast.error("Failed to save item. Please try again.");
+      setIsSaving(false);
+    }
   };
 
   return (
@@ -160,9 +169,21 @@ export function AddWardrobeForm() {
                   className="space-y-4 animate-in fade-in slide-in-from-bottom-4 duration-500"
                 >
                   <div className="grid grid-cols-2 gap-4">
+                    <div className="space-y-2 col-span-2">
+                      <Label>Item Name</Label>
+                      <Input
+                        name="name"
+                        defaultValue={`${extractedData.color} ${extractedData.subcategory}`.trim()}
+                        required
+                      />
+                    </div>
+
                     <div className="space-y-2">
                       <Label>Category</Label>
-                      <Select defaultValue={extractedData.category}>
+                      <Select
+                        name="category"
+                        defaultValue={extractedData.category}
+                      >
                         <SelectTrigger>
                           <SelectValue placeholder="Select..." />
                         </SelectTrigger>
@@ -190,13 +211,17 @@ export function AddWardrobeForm() {
 
                     <div className="space-y-2">
                       <Label>Subcategory (e.g. T-Shirt)</Label>
-                      <Input defaultValue={extractedData.subcategory} />
+                      <Input
+                        name="subcategory"
+                        defaultValue={extractedData.subcategory}
+                      />
                     </div>
 
                     <div className="space-y-2">
                       <Label>Dominant Color</Label>
                       <div className="relative">
                         <Input
+                          name="color"
                           defaultValue={extractedData.color}
                           className="pl-9"
                         />
@@ -213,7 +238,10 @@ export function AddWardrobeForm() {
 
                     <div className="space-y-2">
                       <Label>Brightness</Label>
-                      <Select defaultValue={extractedData.brightness}>
+                      <Select
+                        name="brightness"
+                        defaultValue={extractedData.brightness}
+                      >
                         <SelectTrigger>
                           <SelectValue placeholder="Select..." />
                         </SelectTrigger>
@@ -233,7 +261,10 @@ export function AddWardrobeForm() {
 
                     <div className="space-y-2 col-span-2">
                       <Label>Tags (Comma separated)</Label>
-                      <Input defaultValue={extractedData.tags.join(", ")} />
+                      <Input
+                        name="tags"
+                        defaultValue={extractedData.tags.join(", ")}
+                      />
                     </div>
                   </div>
 
@@ -246,11 +277,19 @@ export function AddWardrobeForm() {
                         setExtractedData(null);
                       }}
                       className="w-full"
+                      disabled={isSaving}
                     >
                       Reset
                     </Button>
-                    <Button type="submit" className="w-full">
-                      Save Item
+                    <Button
+                      type="submit"
+                      className="w-full"
+                      disabled={isSaving}
+                    >
+                      {isSaving ? (
+                        <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                      ) : null}
+                      {isSaving ? "Saving..." : "Save Item"}
                     </Button>
                   </div>
                 </form>

@@ -13,7 +13,7 @@ import {
 } from "@/components/ui/sheet";
 import { SidebarNav } from "@/components/layout/sidebar-nav";
 import { UserMenu } from "@/components/layout/user-menu";
-import { APP_NAME } from "@/lib/constants";
+import { APP_NAME } from "@/constants/general.constant";
 
 type ShellProps = {
   user: {
@@ -76,7 +76,10 @@ export function AppShell({ user, children }: ShellProps) {
               </div>
             </SheetContent>
           </Sheet>
-          <Link href="/dashboard" className="text-sm font-semibold tracking-tight">
+          <Link
+            href="/dashboard"
+            className="text-sm font-semibold tracking-tight"
+          >
             {APP_NAME}
           </Link>
           <div className="w-9" />

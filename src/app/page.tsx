@@ -2,7 +2,7 @@ import Link from "next/link";
 import { ArrowRight, Shirt, Sparkles, CloudSun } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Container } from "@/components/shared/container";
-import { APP_NAME, APP_TAGLINE } from "@/lib/constants";
+import { APP_NAME, APP_TAGLINE } from "@/constants/general.constant";
 
 export default function LandingPage() {
   return (

@@ -6,7 +6,7 @@ import { PageHeader } from "@/components/shared/page-header";
 import { EmptyState } from "@/components/shared/empty-state";
 import { WardrobeItemCard } from "@/components/wardrobe/wardrobe-item-card";
 import { createClient } from "@/lib/supabase/server";
-import { STORAGE_BUCKETS } from "@/lib/constants";
+import { SUPABASE_STORAGE } from "@/constants/supabase.constant";
 
 export default async function WardrobePage() {
   const supabase = await createClient();
@@ -21,8 +21,9 @@ export default async function WardrobePage() {
     (items ?? []).map(async (item) => {
       if (!item.image_path) return { item, imageUrl: null };
       const { data } = await supabase.storage
-        .from(STORAGE_BUCKETS.wardrobe)
+        .from(SUPABASE_STORAGE.WARDROBE)
         .createSignedUrl(item.image_path, 60 * 60);
+
       return { item, imageUrl: data?.signedUrl ?? null };
     }),
   );
