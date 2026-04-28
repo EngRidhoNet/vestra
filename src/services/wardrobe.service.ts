@@ -20,14 +20,19 @@ export async function uploadImage(supabase: SupabaseClient, file: File, path: st
 }
 
 /**
- * Get a public URL for an uploaded file
+ * Get a signed URL for an uploaded file
  */
-export async function getPublicUrl(supabase: SupabaseClient, path: string) {
-  const { data } = supabase.storage
+export async function getSignedUrl(supabase: SupabaseClient, path: string) {
+  const { data, error } = await supabase.storage
     .from(SUPABASE_STORAGE.WARDROBE)
-    .getPublicUrl(path);
+    .createSignedUrl(path, 3600); // 1 hour expiry
 
-  return data.publicUrl;
+  if (error) {
+    console.error("Failed to get signed URL:", error);
+    return null;
+  }
+
+  return data.signedUrl;
 }
 
 /**
@@ -67,4 +72,20 @@ export async function getWardrobeItems(supabase: SupabaseClient) {
     throw new Error(`Failed to get wardrobe items: ${error.message}`);
   }
   return data as WardrobeItem[];
+}
+
+/**
+ * Get a single wardrobe item by ID
+ */
+export async function getWardrobeItemById(supabase: SupabaseClient, id: string) {
+  const { data, error } = await supabase
+    .from(SUPABASE_TABLES.WARDROBE_ITEMS)
+    .select("*")
+    .eq("id", id)
+    .single();
+
+  if (error) {
+    throw new Error(`Failed to get wardrobe item: ${error.message}`);
+  }
+  return data as WardrobeItem;
 }

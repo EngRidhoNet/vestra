@@ -42,10 +42,7 @@ export function ExtractedDetailsForm({
 
         <div className="space-y-2">
           <Label>Category</Label>
-          <Select
-            name="category"
-            defaultValue={extractedData.category}
-          >
+          <Select name="category" defaultValue={extractedData.category}>
             <SelectTrigger>
               <SelectValue placeholder="Select..." />
             </SelectTrigger>
@@ -59,11 +56,7 @@ export function ExtractedDetailsForm({
                 "bag",
                 "other",
               ].map((c) => (
-                <SelectItem
-                  key={c}
-                  value={c}
-                  className="capitalize"
-                >
+                <SelectItem key={c} value={c} className="capitalize">
                   {c}
                 </SelectItem>
               ))}
@@ -73,10 +66,7 @@ export function ExtractedDetailsForm({
 
         <div className="space-y-2">
           <Label>Subcategory (e.g. T-Shirt)</Label>
-          <Input
-            name="subcategory"
-            defaultValue={extractedData.subcategory}
-          />
+          <Input name="subcategory" defaultValue={extractedData.subcategory} />
         </div>
 
         <div className="space-y-2">
@@ -100,20 +90,13 @@ export function ExtractedDetailsForm({
 
         <div className="space-y-2">
           <Label>Brightness</Label>
-          <Select
-            name="brightness"
-            defaultValue={extractedData.brightness}
-          >
+          <Select name="brightness" defaultValue={extractedData.brightness}>
             <SelectTrigger>
               <SelectValue placeholder="Select..." />
             </SelectTrigger>
             <SelectContent>
               {BRIGHTNESS_VALUES.map((b) => (
-                <SelectItem
-                  key={b}
-                  value={b}
-                  className="capitalize"
-                >
+                <SelectItem key={b} value={b} className="capitalize">
                   {b}
                 </SelectItem>
               ))}
@@ -123,32 +106,23 @@ export function ExtractedDetailsForm({
 
         <div className="space-y-2 col-span-2">
           <Label>Tags (Comma separated)</Label>
-          <Input
-            name="tags"
-            defaultValue={extractedData.tags.join(", ")}
-          />
+          <Input name="tags" defaultValue={extractedData.tags.join(", ")} />
         </div>
       </div>
 
-      <div className="pt-4 flex gap-3">
-        <Button
-          type="button"
-          variant="outline"
-          onClick={onReset}
-          className="w-full"
-          disabled={isSaving}
-        >
-          Reset
+      <div className="pt-4 flex flex-col gap-3">
+        <Button type="submit" className="w-full" disabled={isSaving}>
+          {isSaving ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : null}
+          {isSaving ? "Saving..." : "Save Item"}
         </Button>
         <Button
-          type="submit"
-          className="w-full"
+          type="button"
+          variant="ghost"
+          onClick={onReset}
+          className="w-full text-muted-foreground hover:text-destructive transition-colors"
           disabled={isSaving}
         >
-          {isSaving ? (
-            <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-          ) : null}
-          {isSaving ? "Saving..." : "Save Item"}
+          Reset and try again
         </Button>
       </div>
     </form>

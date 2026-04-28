@@ -8,6 +8,8 @@ import { WardrobeItemCard } from "@/components/wardrobe/wardrobe-item-card";
 import { createClient } from "@/lib/supabase/server";
 import { SUPABASE_STORAGE } from "@/constants/supabase.constant";
 
+import { getSignedUrl } from "@/services/wardrobe.service";
+
 export default async function WardrobePage() {
   const supabase = await createClient();
 
@@ -20,11 +22,9 @@ export default async function WardrobePage() {
   const withUrls = await Promise.all(
     (items ?? []).map(async (item) => {
       if (!item.image_path) return { item, imageUrl: null };
-      const { data } = await supabase.storage
-        .from(SUPABASE_STORAGE.WARDROBE)
-        .createSignedUrl(item.image_path, 60 * 60);
+      const imageUrl = await getSignedUrl(supabase, item.image_path);
 
-      return { item, imageUrl: data?.signedUrl ?? null };
+      return { item, imageUrl };
     }),
   );
 
