@@ -90,6 +90,11 @@ export type Outfit = {
   created_at: string;
 };
 
+export type OutfitItem = {
+  outfit_id: string;
+  item_id: string;
+};
+
 export type Recommendation = {
   id: string;
   user_id: string;

@@ -16,6 +16,7 @@ import Image from "next/image";
 import { notFound } from "next/navigation";
 import { format } from "date-fns";
 import { Container } from "@/components/shared/container";
+import { GenerateOutfitButton } from "@/components/wardrobe/generate-outfit-button";
 
 export default async function WardrobeItemDetailPage({
   params,
@@ -163,10 +164,7 @@ export default async function WardrobeItemDetailPage({
 
             {/* AI Action CTA */}
             <div className="mt-auto pt-12">
-              <Button className="w-full h-14 text-lg font-bold rounded-2xl shadow-xl shadow-primary/20 hover:shadow-primary/30 transition-all hover:-translate-y-0.5 active:translate-y-0 bg-primary">
-                <Sparkles className="h-5 w-5 mr-3 fill-primary-foreground/20" />
-                Find Outfits with this Item
-              </Button>
+              <GenerateOutfitButton seedItemId={item.id} />
               <p className="text-center text-xs text-muted-foreground mt-4">
                 Powered by Vestra AI Matching Engine
               </p>
