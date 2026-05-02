@@ -8,7 +8,7 @@ import { SidebarNav } from "@/components/layout/sidebar-nav";
 import { UserMenu } from "@/components/layout/user-menu";
 import { MobileTabNav } from "@/components/layout/mobile-tab-nav";
 import { APP_NAV } from "@/components/layout/nav-items";
-import { APP_NAME } from "@/lib/constants";
+import { APP_NAME } from "@/constants/general.constant";
 
 type ShellProps = {
   user: {

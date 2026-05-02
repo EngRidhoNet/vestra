@@ -6,7 +6,7 @@ import { cn } from "@/lib/utils";
 import {
   ACCEPTED_IMAGE_TYPES,
   MAX_UPLOAD_BYTES,
-} from "@/lib/constants";
+} from "@/constants/general.constant";
 
 type UploadZoneProps = {
   onFiles: (files: File[]) => void;
@@ -31,7 +31,12 @@ export function UploadZone({
       if (!fileList) return;
       const valid: File[] = [];
       for (const file of Array.from(fileList)) {
-        if (!ACCEPTED_IMAGE_TYPES.includes(file.type as (typeof ACCEPTED_IMAGE_TYPES)[number])) continue;
+        if (
+          !ACCEPTED_IMAGE_TYPES.includes(
+            file.type as (typeof ACCEPTED_IMAGE_TYPES)[number],
+          )
+        )
+          continue;
         if (file.size > MAX_UPLOAD_BYTES) continue;
         valid.push(file);
       }

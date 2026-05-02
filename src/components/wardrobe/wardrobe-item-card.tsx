@@ -1,4 +1,5 @@
 import Image from "next/image";
+import Link from "next/link";
 import { Shirt } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
@@ -14,7 +15,8 @@ export function WardrobeItemCard({
   className?: string;
 }) {
   return (
-    <div
+    <Link
+      href={`/wardrobe/${item.id}`}
       className={cn(
         "glass-panel group flex flex-col overflow-hidden rounded-2xl border-0 transition duration-300 ease-out active:scale-[0.99] sm:hover:-translate-y-0.5",
         className,
@@ -48,6 +50,6 @@ export function WardrobeItemCard({
           </p>
         ) : null}
       </div>
-    </div>
+    </Link>
   );
 }

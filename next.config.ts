@@ -7,6 +7,14 @@ const nextConfig: NextConfig = {
     },
     proxyClientMaxBodySize: "10mb",
   },
+  images: {
+    remotePatterns: [
+      {
+        protocol: "https",
+        hostname: "bicjdnrrvmdrskykpxkj.supabase.co",
+      },
+    ],
+  },
 };
 
 export default nextConfig;

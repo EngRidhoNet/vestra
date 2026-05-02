@@ -2,7 +2,7 @@ import Link from "next/link";
 import { Shirt } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { AuthButton } from "@/components/shared/auth-button";
-import { APP_NAME } from "@/lib/constants";
+import { APP_NAME } from "@/constants/general.constant";
 
 type SearchParams = Promise<{ redirect?: string; error?: string }>;
 
