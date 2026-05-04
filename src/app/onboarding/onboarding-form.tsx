@@ -23,14 +23,16 @@ import {
 } from "@/components/onboarding/selectable-card";
 import { StepIndicator } from "@/components/onboarding/step-indicator";
 import {
+  ACCEPTED_IMAGE_TYPES,
+  MAX_UPLOAD_BYTES,
+} from "@/constants/general.constant";
+import {
   GENDERS,
   SKIN_TONES,
   BODY_SHAPES,
   STYLE_TAGS,
-  ACCEPTED_IMAGE_TYPES,
-  MAX_UPLOAD_BYTES,
-  STORAGE_BUCKETS,
-} from "@/lib/constants";
+} from "@/constants/wardrobe-related.constant";
+
 import {
   completeOnboarding,
   type OnboardingPayload,
@@ -174,9 +176,7 @@ export function OnboardingForm({ defaultName }: { defaultName: string }) {
         styleTags: styleTags as OnboardingPayload["styleTags"],
         climate,
         avatarUrl: avatar.path
-          ? await getSignedUrl(avatar.path).then(
-              (url) => url ?? avatar.path,
-            )
+          ? await getSignedUrl(avatar.path).then((url) => url ?? avatar.path)
           : null,
         facePhotoPath: facePhoto.path ?? null,
         bodyPhotoPath: bodyPhoto.path ?? null,
@@ -382,7 +382,7 @@ function StepBasicProfile({
       <div className="space-y-3">
         <Label>Gender</Label>
         <div className="grid grid-cols-3 gap-2">
-          {GENDERS.map((g) => (
+          {GENDERS.map((g: any) => (
             <SelectableCard
               key={g.value}
               value={g.value}
@@ -426,7 +426,7 @@ function StepAppearance({
       <div className="space-y-3">
         <Label>Skin Tone</Label>
         <div className="flex flex-wrap justify-center gap-1">
-          {SKIN_TONES.map((t) => (
+          {SKIN_TONES.map((t: any) => (
             <SkinToneSwatch
               key={t.value}
               value={t.value}
@@ -442,7 +442,7 @@ function StepAppearance({
       <div className="space-y-3">
         <Label>Body Type</Label>
         <div className="grid grid-cols-2 gap-2">
-          {BODY_SHAPES.map((b) => (
+          {BODY_SHAPES.map((b: any) => (
             <SelectableCard
               key={b.value}
               value={b.value}
@@ -494,8 +494,8 @@ function StepPhotos({
 
       <div className="bg-muted/30 rounded-2xl p-4 text-center">
         <p className="text-muted-foreground text-xs">
-          Your photos are stored securely and only used for generating
-          outfit recommendations. You can skip this step and add them later.
+          Your photos are stored securely and only used for generating outfit
+          recommendations. You can skip this step and add them later.
         </p>
       </div>
 
@@ -551,11 +551,12 @@ function StepReview({
   onEditStep: (step: number) => void;
 }) {
   const genderLabel =
-    GENDERS.find((g) => g.value === gender)?.label ?? "—";
+    GENDERS.find((g: any) => g.value === gender)?.label ?? "—";
   const skinLabel =
-    SKIN_TONES.find((t) => t.value === skinTone)?.label ?? "—";
+    SKIN_TONES.find((t: any) => t.value === skinTone)?.label ?? "—";
+
   const bodyLabel =
-    BODY_SHAPES.find((b) => b.value === bodyShape)?.label ?? "—";
+    BODY_SHAPES.find((b: any) => b.value === bodyShape)?.label ?? "—";
 
   return (
     <div className="space-y-6">
@@ -572,11 +573,7 @@ function StepReview({
       </div>
 
       <div className="divide-border divide-y rounded-2xl border">
-        <ReviewRow
-          label="Name"
-          value={fullName}
-          onEdit={() => onEditStep(0)}
-        />
+        <ReviewRow label="Name" value={fullName} onEdit={() => onEditStep(0)} />
         <ReviewRow
           label="Gender"
           value={genderLabel}
@@ -652,7 +649,7 @@ function StepReview({
           Pick any that resonate. You can change this later.
         </p>
         <div className="flex flex-wrap gap-2">
-          {STYLE_TAGS.map((tag) => (
+          {STYLE_TAGS.map((tag: string) => (
             <button
               key={tag}
               type="button"

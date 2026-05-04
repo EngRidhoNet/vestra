@@ -3,7 +3,7 @@
 import { redirect } from "next/navigation";
 import { z } from "zod";
 import { createClient } from "@/lib/supabase/server";
-import { STYLE_TAGS } from "@/lib/constants";
+import { STYLE_TAGS } from "@/constants/wardrobe-related.constant";
 
 const genderValues = ["male", "female", "prefer_not_to_say"] as const;
 const skinToneValues = [

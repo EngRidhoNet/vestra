@@ -13,6 +13,11 @@ export type ItemCategory =
   | "bag"
   | "other";
 
+export type Brightness =
+  | "light" // terang/cerah (putih, pastel, kuning cerah)
+  | "dark" // gelap (hitam, navy, burgundy tua)
+  | "medium"; // menengah (warna netral/sedang)
+
 export type GenderType = "male" | "female" | "prefer_not_to_say";
 
 export type SkinTone =
@@ -74,6 +79,7 @@ export type WardrobeItem = {
   archived: boolean;
   created_at: string;
   updated_at: string;
+  brightness: Brightness | null;
 };
 
 export type Outfit = {
@@ -82,6 +88,11 @@ export type Outfit = {
   name: string | null;
   occasion: string | null;
   created_at: string;
+};
+
+export type OutfitItem = {
+  outfit_id: string;
+  item_id: string;
 };
 
 export type Recommendation = {
